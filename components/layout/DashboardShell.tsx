@@ -25,7 +25,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
     <div className={`min-h-screen ${isWhiteTheme ? "bg-slate-50" : `bg-climate-dark bg-gradient-to-br ${theme.bg}`}`}>
       <header className={`sticky top-0 z-40 border-b backdrop-blur ${isWhiteTheme ? "border-slate-200 bg-white/80" : `${theme.border} bg-slate-900/70`}`}>
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-2 text-white shadow-lg shadow-emerald-500/20">
+          <Link href={{ pathname: "/" }} className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-3 py-2 text-white shadow-lg shadow-emerald-500/20">
             <Wind size={18} />
             <span className="text-sm font-bold">EcoVision</span>
           </Link>
@@ -35,7 +35,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={{ pathname: link.href }}
                   className={`rounded-full px-3 py-2 transition ${active ? "bg-emerald-500/20 text-emerald-400" : isWhiteTheme ? "text-slate-500 hover:bg-slate-100" : "text-slate-300 hover:bg-white/5"}`}
                 >
                   {link.label}

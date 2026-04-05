@@ -14,11 +14,11 @@ function generateSynthetic(metric: Metric, startYear = 2024, endYear = 2030) {
   return rows.filter((r) => r.year >= 2020 && r.year <= endYear);
 }
 
-export async function GET(_req: Request, { params }: { params: { metric: string } }) {
-  const metric = params.metric as Metric;
-  if (!ALLOWED.includes(metric)) {
+export async function GET(_req: Request, context: { params: Promise<{ metric: string }> }) {
+  const { metric } = await context.params;
+  if (!ALLOWED.includes(metric as Metric)) {
     return NextResponse.json({ error: "Invalid metric type" }, { status: 400 });
   }
-  const data = generateSynthetic(metric);
+  const data = generateSynthetic(metric as Metric);
   return NextResponse.json(data);
 }

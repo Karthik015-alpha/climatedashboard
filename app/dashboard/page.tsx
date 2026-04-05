@@ -24,7 +24,7 @@ export default function DashboardOverviewPage() {
         <WeatherCard />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {modules.map((m) => (
-            <Link key={m.href} href={m.href} className="clean-card bg-white/5">
+            <Link key={m.href} href={{ pathname: m.href }} className="clean-card bg-white/5">
               <p className={`text-sm font-bold ${isWhiteTheme ? "text-emerald-700" : "text-emerald-300"}`}>{m.title}</p>
               <p className={`mt-2 text-sm ${isWhiteTheme ? "text-slate-700" : "text-slate-300"}`}>{m.desc}</p>
             </Link>
