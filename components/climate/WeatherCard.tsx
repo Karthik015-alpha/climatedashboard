@@ -1,0 +1,122 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Droplets, Navigation, RotateCcw, Wind } from "lucide-react";
+import { fetchWeather, weatherLabel } from "@/lib/weather";
+import { useClimate } from "@/context/ClimateContext";
+import LocationSearch from "./LocationSearch";
+
+type WeatherData = {
+  temp: number;
+  wind: number;
+  humidity: number;
+  code: number;
+};
+
+type Props = {
+  initialName?: string;
+  lat?: number;
+  lon?: number;
+};
+
+export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lon = 77.21 }: Props) {
+  const { isWhiteTheme } = useClimate();
+  const [location, setLocation] = useState({ name: initialName, lat, lon });
+  const hasManualSelection = useRef(false);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async (coords: { lat: number; lon: number }) => {
+    setLoading(true);
+    try {
+      const data = await fetchWeather(coords.lat, coords.lon);
+      const h = new Date().getHours();
+      setWeather({
+        temp: data.current_weather?.temperature ?? 0,
+        wind: data.current_weather?.windspeed ?? 0,
+        humidity: data.hourly?.relative_humidity_2m?.[h] ?? 0,
+        code: data.current_weather?.weathercode ?? 0
+      });
+      setLastUpdated(new Date().toLocaleTimeString());
+      setError(null);
+    } catch (e) {
+      setError("Weather fetch failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load({ lat, lon }); }, [lat, lon, load]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        if (hasManualSelection.current) return;
+        const next = { name: "My Location", lat: coords.latitude, lon: coords.longitude };
+        setLocation(next);
+        load({ lat: next.lat, lon: next.lon });
+      },
+      () => {
+        // Keep initial location when location permission is denied.
+      },
+      { enableHighAccuracy: false, timeout: 7000, maximumAge: 600000 }
+    );
+  }, [load]);
+
+  const condition = weather ? weatherLabel(weather.code) : "--";
+
+  return (
+    <div className="glass-panel relative flex h-full flex-col gap-4 p-6">
+      <LocationSearch
+        selected={{ name: location.name, lat: location.lat, lon: location.lon }}
+        onSelect={(loc) => {
+          hasManualSelection.current = true;
+          setLocation(loc);
+          load({ lat: loc.lat, lon: loc.lon });
+        }}
+        showMap
+      />
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className={`text-sm font-semibold ${isWhiteTheme ? "text-slate-600" : "text-slate-400"}`}>{condition}</p>
+          <h3 className={`text-3xl font-black ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>{location.name}</h3>
+        </div>
+        <Navigation size={28} className="text-emerald-400" />
+      </div>
+
+      <div className="flex items-end gap-2">
+        <span className={`text-6xl font-black ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>
+          {weather?.temp ?? "--"}
+        </span>
+        <span className={`mb-2 text-2xl font-bold ${isWhiteTheme ? "text-slate-400" : "text-emerald-400/60"}`}>°C</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-3 rounded-2xl border p-4`}>
+          <Droplets className="text-cyan-400" size={20} />
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Humidity</p>
+            <p className={`text-lg font-bold ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>{weather?.humidity ?? "--"}%</p>
+          </div>
+        </div>
+        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-3 rounded-2xl border p-4`}>
+          <Wind className="text-orange-400" size={20} />
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Wind</p>
+            <p className={`text-lg font-bold ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>
+              {weather?.wind ?? "--"} <span className="text-xs">km/h</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className={`mt-auto flex items-center justify-between border-t pt-4 text-[11px] ${isWhiteTheme ? "border-slate-200 text-slate-500" : "border-white/10 text-slate-400"}`}>
+        <span className="flex items-center gap-2"><RotateCcw size={12} className={loading ? "animate-spin" : ""} /> Updated {lastUpdated ?? "--"}</span>
+        {error && <span className="text-rose-400">{error}</span>}
+      </div>
+    </div>
+  );
+}

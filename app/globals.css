@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0f172a;
+  --color-secondary: #1e293b;
+  --color-accent: #38bdf8;
+  --color-text: #e2e8f0;
+  --color-climate-dark: #0f172a;
+  --color-climate-card: #1e293b;
+  --color-climate-accent: #10b981;
+  --color-climate-danger: #ef4444;
+  --color-climate-warning: #f59e0b;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    @apply antialiased transition-colors duration-1000;
+  }
+  body.theme-light {
+    @apply bg-slate-100 text-slate-800;
+  }
+}
+
+.glass-panel {
+  background: var(--color-secondary);
+  @apply backdrop-blur-md rounded-xl border border-slate-700/50 shadow-xl transition-colors duration-500;
+}
+body.theme-light .glass-panel {
+  @apply bg-white/70 border-slate-200/50 shadow-lg;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+body.theme-light ::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+body.theme-light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+body.theme-light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.temperature-map-vivid { filter: saturate(300%) contrast(150%) brightness(90%); opacity: 0.85 !important; transition: filter 0.5s ease-in-out; }
+.leaflet-tile-pane { filter: drop-shadow(0 0 1px rgba(0,0,0,0.5)); }
+.leaflet-container { background: #040712 !important; }
+body.theme-light .leaflet-container { background: #f1f5f9 !important; }
+
+body.theme-light input[type="text"],
+body.theme-light input[type="search"],
+body.theme-light input[type="email"],
+body.theme-light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]) {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+body.theme-light input::placeholder { color: #94a3b8 !important; }
+body.theme-light .glass-panel { color: #1e293b; }
+body.theme-light .bg-white\/5 { background-color: #f8fafc !important; }
+
+.hide-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scroll::-webkit-scrollbar { display: none; }
+
+.clean-card {
+  border-radius: 16px;
+  padding: 24px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  min-height: 270px;
+  text-decoration: none;
+}
+.clean-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.08);
+}
+
+.wc-card {
+  border-radius: 26px;
+  padding: 22px 20px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  text-decoration: none;
+}
+.wc-card:hover { transform: translateY(-6px) scale(1.025); }
+
+.marker-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid rgba(16,185,129,0.2);
+  box-shadow: 0 0 12px rgba(16,185,129,0.4);
+}
