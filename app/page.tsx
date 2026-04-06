@@ -6,7 +6,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Droplets, Thermometer, Wind, Zap } from "lucide-react";
 
 import { fetchWeather, fetchAQI } from "@/lib/weather";
-import { globalCities } from "@/lib/globalCities";
+
+type LandingCity = {
+  name: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+};
+
+const majorIndianCities: LandingCity[] = [
+  { name: "New Delhi", country: "India", latitude: 28.6139, longitude: 77.2090 },
+  { name: "Mumbai", country: "India", latitude: 19.0760, longitude: 72.8777 },
+  { name: "Bengaluru", country: "India", latitude: 12.9716, longitude: 77.5946 },
+  { name: "Chennai", country: "India", latitude: 13.0827, longitude: 80.2707 },
+  { name: "Kolkata", country: "India", latitude: 22.5726, longitude: 88.3639 },
+  { name: "Hyderabad", country: "India", latitude: 17.3850, longitude: 78.4867 },
+  { name: "Pune", country: "India", latitude: 18.5204, longitude: 73.8567 },
+  { name: "Ahmedabad", country: "India", latitude: 23.0225, longitude: 72.5714 }
+];
 
 type WeatherSnippet = {
   temp?: number;
@@ -24,7 +41,7 @@ const phrases = [
 
 function LandingPage() {
   // --- State and logic moved inside component ---
-  const defaultMainCity = globalCities[0];
+  const defaultMainCity = majorIndianCities[0];
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [subText, setSubText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -75,7 +92,7 @@ function LandingPage() {
       try {
         const hour = new Date().getHours();
         const citySettled = await Promise.allSettled(
-          globalCities.map(async (city) => {
+          majorIndianCities.map(async (city) => {
             const weather = await fetchWeather(city.latitude, city.longitude);
             return [
               city.name,
@@ -125,7 +142,6 @@ function LandingPage() {
         <header className="flex items-center justify-between">
           <Link href={{ pathname: "/" }} className="text-lg font-black tracking-[0.2em] uppercase">EcoVision</Link>
           <div className="flex items-center gap-3 text-sm">
-            <Link href={{ pathname: "/login" }} className="rounded-full border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Login</Link>
             <Link href={{ pathname: "/dashboard" }} className="rounded-full bg-white px-4 py-2 font-semibold text-black shadow-lg shadow-emerald-500/20">Open Dashboard</Link>
           </div>
         </header>
@@ -179,7 +195,7 @@ function LandingPage() {
             </div>
             <div className="space-y-2 text-xs uppercase tracking-[0.15em] text-white/75">Other Cities</div>
             <div className="space-y-2">
-              {globalCities.slice(1).map((c) => (
+              {majorIndianCities.slice(1).map((c) => (
                 <div key={c.name} className="flex items-center justify-between rounded-xl border border-white/20 bg-black/40 px-4 py-3 text-sm">
                   <span className="font-semibold">{c.name}</span>
                   <span className="font-mono text-lg font-black">{snippets[c.name]?.temp !== undefined ? Math.round(snippets[c.name].temp as number) : "--"}°</span>

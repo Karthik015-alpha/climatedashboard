@@ -1,8 +1,9 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Droplets, Navigation, RotateCcw, Wind } from "lucide-react";
-import { fetchWeather, weatherLabel } from "@/lib/weather";
+import { Download, Droplets, Navigation, RotateCcw, Wind } from "lucide-react";
+import { fetchAQI, fetchWeather, weatherLabel } from "@/lib/weather";
 import { useClimate } from "@/context/ClimateContext";
+import { generateWeatherReportPDF } from "@/utils/pdf";
 import LocationSearch from "./LocationSearch";
 
 type WeatherData = {
@@ -19,13 +20,14 @@ type Props = {
 };
 
 export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lon = 77.21 }: Props) {
-  const { isWhiteTheme } = useClimate();
+  const { isWhiteTheme, setSelectedLocation } = useClimate();
   const [location, setLocation] = useState({ name: initialName, lat, lon });
   const hasManualSelection = useRef(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloadingReport, setDownloadingReport] = useState(false);
 
   const load = useCallback(async (coords: { lat: number; lon: number }) => {
     setLoading(true);
@@ -65,6 +67,66 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
     );
   }, [load]);
 
+  useEffect(() => {
+    setSelectedLocation({
+      name: location.name,
+      lat: location.lat,
+      lon: location.lon,
+      shortName: location.name,
+      formatted_address: location.name,
+      city: location.name,
+      state: "",
+      country: ""
+    });
+  }, [location, setSelectedLocation]);
+
+  const handleDownloadReport = async () => {
+    try {
+      setDownloadingReport(true);
+      const [weatherData, aqi] = await Promise.all([
+        fetchWeather(location.lat, location.lon),
+        fetchAQI(location.lat, location.lon)
+      ]);
+      const hour = new Date().getHours();
+      const forecast = (weatherData.daily?.time || []).map((d, i) => ({
+        date: d,
+        min: weatherData.daily?.temperature_2m_min?.[i],
+        max: weatherData.daily?.temperature_2m_max?.[i],
+        weatherCode: weatherData.daily?.weathercode?.[i]
+      }));
+
+      const payload = {
+        location: {
+          name: location.name,
+          lat: location.lat,
+          lon: location.lon,
+          formatted_address: location.name
+        },
+        weather: {
+          temperature: weatherData.current_weather?.temperature,
+          humidity: weatherData.hourly?.relative_humidity_2m?.[hour],
+          windspeed: weatherData.current_weather?.windspeed,
+          weatherCode: weatherData.current_weather?.weathercode,
+          weatherLabel: weatherLabel(weatherData.current_weather?.weathercode ?? 0)
+        },
+        aqi: {
+          europeanAqi: aqi?.current?.european_aqi,
+          pm10: aqi?.current?.pm10,
+          pm2_5: aqi?.current?.pm2_5,
+          ozone: aqi?.current?.ozone,
+          nitrogenDioxide: aqi?.current?.nitrogen_dioxide
+        },
+        forecast,
+        generatedAt: new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+      };
+
+      const safeName = location.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "location";
+      generateWeatherReportPDF(payload, `weather-report-${safeName}.pdf`);
+    } finally {
+      setDownloadingReport(false);
+    }
+  };
+
   const condition = weather ? weatherLabel(weather.code) : "--";
 
   return (
@@ -78,6 +140,19 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
         }}
         showMap
       />
+
+      <button
+        onClick={handleDownloadReport}
+        disabled={loading || downloadingReport}
+        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+          loading || downloadingReport
+            ? "cursor-not-allowed bg-slate-300 text-slate-500"
+            : "bg-emerald-500 text-white hover:bg-emerald-600"
+        }`}
+      >
+        <Download size={16} />
+        {downloadingReport ? "Preparing Report..." : "Download Weather Report"}
+      </button>
 
       <div className="flex items-center justify-between">
         <div>
