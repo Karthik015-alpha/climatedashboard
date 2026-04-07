@@ -22,6 +22,7 @@ type Props = {
 export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lon = 77.21 }: Props) {
   const { isWhiteTheme, setSelectedLocation } = useClimate();
   const [location, setLocation] = useState({ name: initialName, lat, lon });
+  const [isNarrow, setIsNarrow] = useState(false);
   const hasManualSelection = useRef(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -66,6 +67,13 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
       { enableHighAccuracy: false, timeout: 7000, maximumAge: 600000 }
     );
   }, [load]);
+
+  useEffect(() => {
+    const update = () => setIsNarrow(window.innerWidth < 640);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     setSelectedLocation({
@@ -130,7 +138,7 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
   const condition = weather ? weatherLabel(weather.code) : "--";
 
   return (
-    <div className="glass-panel relative flex h-full flex-col gap-4 p-6">
+    <div className="glass-panel relative flex h-full flex-col gap-3 p-4 sm:gap-4 sm:p-6">
       <LocationSearch
         selected={{ name: location.name, lat: location.lat, lon: location.lon }}
         onSelect={(loc) => {
@@ -138,7 +146,7 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
           setLocation(loc);
           load({ lat: loc.lat, lon: loc.lon });
         }}
-        showMap
+        showMap={!isNarrow}
       />
 
       <button
@@ -157,27 +165,27 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
       <div className="flex items-center justify-between">
         <div>
           <p className={`text-sm font-semibold ${isWhiteTheme ? "text-slate-600" : "text-slate-400"}`}>{condition}</p>
-          <h3 className={`text-3xl font-black ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>{location.name}</h3>
+          <h3 className={`max-w-[11rem] truncate text-2xl font-black sm:max-w-none sm:text-3xl ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>{location.name}</h3>
         </div>
         <Navigation size={28} className="text-emerald-400" />
       </div>
 
       <div className="flex items-end gap-2">
-        <span className={`text-6xl font-black ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>
+        <span className={`text-5xl font-black sm:text-6xl ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>
           {weather?.temp ?? "--"}
         </span>
         <span className={`mb-2 text-2xl font-bold ${isWhiteTheme ? "text-slate-400" : "text-emerald-400/60"}`}>°C</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-3 rounded-2xl border p-4`}>
+        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-2 rounded-2xl border p-3 sm:gap-3 sm:p-4`}>
           <Droplets className="text-cyan-400" size={20} />
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Humidity</p>
             <p className={`text-lg font-bold ${isWhiteTheme ? "text-slate-800" : "text-slate-100"}`}>{weather?.humidity ?? "--"}%</p>
           </div>
         </div>
-        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-3 rounded-2xl border p-4`}>
+        <div className={`${isWhiteTheme ? "bg-slate-50 border-slate-200" : "bg-slate-800/30 border-white/10"} flex items-center gap-2 rounded-2xl border p-3 sm:gap-3 sm:p-4`}>
           <Wind className="text-orange-400" size={20} />
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Wind</p>

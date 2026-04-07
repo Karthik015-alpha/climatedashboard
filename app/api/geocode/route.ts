@@ -14,6 +14,53 @@ type GeoResult = {
 
 const NELLORE_VIEWBOX = "79.25,14.95,80.35,13.55";
 
+const NELLORE_CENTER = { latitude: 14.4426, longitude: 79.9865 };
+
+// Expanded fallback catalog to maximize Nellore coverage for local search.
+const NELLORE_FALLBACK_NAMES = [
+  "Nellore", "Nellore Urban", "Nellore Rural", "Indukurpet", "T.P. Gudur", "Muthukur", "Venkatachalam", "Podalakur", "Rapur", "Kovur", "Buchireddypalem", "Manubolu", "Sydapuram",
+  "Atmakur", "Kaluvoya", "Chejerla", "Ananthasagaram", "A.S. Peta", "Sangam", "S.R. Puram", "Udayagiri", "Marripadu", "Kavali", "Allur", "Kodavalur", "Vidavalur", "Vinjamur",
+  "Dagadarthi", "Bogole", "Jaladanki", "Duttalur", "Kaligiri", "Gudur", "Sullurpeta", "Naidupeta", "Venkatagiri", "Tada", "Chittamur", "Vakadu", "Kondapuram", "Dakkili", "Doravarisatram",
+  "Ojili", "Pellakur", "Balayapalle", "Varikuntapadu", "Stonehousepet", "Magunta Layout", "Balaji Nagar", "Vedayapalem", "Dargamitta", "Pogathota", "Nawabpet", "A.C. Nagar", "Ramji Nagar",
+  "Harinathpuram", "VRC Centre", "Gandhi Bomma Centre", "Children's Park Area", "Mulapeta", "Fathekhanpet", "Chinna Bazaar", "Kothuru", "Bramhananda Reddy Nagar", "Ambedkar Nagar", "Navalak Gardens",
+  "Saraswathi Nagar", "Isukathota", "Kondayapalem", "Somasekharapuram", "Chintareddypalem", "Allipuram", "Devarapalem", "Gudipallipadu", "Amancherla", "Trunk Road", "Mini Bypass Road", "R.R. Street",
+  "Achari Street", "Kapu Street", "Mulapeta Main Road", "Podalakur Road", "Atmakur Road", "Muthukur Road", "Vedayapalem Road", "GNT Road", "NH-16 stretch",
+  "Akkacheruvupadu", "Anumasamudrampeta", "Balayapalle", "Beeramgunta", "Bitragunta", "Chendodu", "Chillakur", "D. Velampalli", "Donthali", "Graddagunta", "Illukurupadu", "Karlapudi", "Kesavaram",
+  "Kota", "Kothapatnam", "Krishnapatnam", "Mypadu", "Nelapattu", "North Rajupalem", "Pangili", "Pennepalli", "Rebala", "Saipeta", "Sarvepalli", "Seetharamapuram", "Siddana Konduru", "Thummalapenta",
+  "Utukur", "Veguru", "Venadu", "Vendodu", "Viruvur", "Yellayapalem", "Yerradoddipalli"
+];
+
+function toNelloreFallbackResult(name: string): GeoResult {
+  return {
+    name,
+    latitude: NELLORE_CENTER.latitude,
+    longitude: NELLORE_CENTER.longitude,
+    country: "India",
+    admin1: "Andhra Pradesh",
+    admin2: "SPSR Nellore",
+    formatted_address: `${name}, SPSR Nellore, Andhra Pradesh, India`
+  };
+}
+
+function searchNelloreFallback(query: string): GeoResult[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return [];
+  return NELLORE_FALLBACK_NAMES
+    .filter((name) => name.toLowerCase().includes(q))
+    .map(toNelloreFallbackResult);
+}
+
+function rankLocalResult(query: string, r: GeoResult) {
+  const q = query.toLowerCase();
+  const name = (r.name || "").toLowerCase();
+  const address = (r.formatted_address || "").toLowerCase();
+  const exact = name === q ? 100 : 0;
+  const starts = name.startsWith(q) ? 30 : 0;
+  const inAddress = address.includes("nellore") ? 25 : 0;
+  const include = name.includes(q) ? 10 : 0;
+  return exact + starts + inAddress + include;
+}
+
 function normalizeNominatim(item: any): GeoResult | null {
   const lat = Number(item?.lat);
   const lon = Number(item?.lon);
@@ -117,7 +164,7 @@ export async function GET(request: Request) {
   const cleaned = rawQuery ? cleanQuery(rawQuery) : "";
   const query = normalizeNelloreTypos(cleaned);
 
-  const localMatches = [...searchNelloreLocalities(query), ...searchAndhraLocalities(query)].map((item) => ({
+  const nelloreLocalMatches = [...searchNelloreLocalities(query), ...searchNelloreFallback(query)].map((item) => ({
     name: item.name,
     latitude: item.latitude,
     longitude: item.longitude,
@@ -127,16 +174,53 @@ export async function GET(request: Request) {
     formatted_address: item.formatted_address
   }));
 
+  const andhraLocalMatches = searchAndhraLocalities(query).map((item) => ({
+    name: item.name,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    country: item.country,
+    admin1: item.admin1,
+    admin2: item.admin2,
+    formatted_address: item.formatted_address
+  }));
+
+  const dedupeLocal = (rows: GeoResult[]) => {
+    const localSeen = new Set<string>();
+    return rows.filter((item) => {
+      const key = `${item.name.toLowerCase()}|${item.latitude.toFixed(4)}|${item.longitude.toFixed(4)}|${(item.formatted_address || "").toLowerCase()}`;
+      if (localSeen.has(key)) return false;
+      localSeen.add(key);
+      return true;
+    });
+  };
+
+  const uniqueNelloreLocal = dedupeLocal(nelloreLocalMatches)
+    .sort((a, b) => rankLocalResult(query, b) - rankLocalResult(query, a));
+
+  if (uniqueNelloreLocal.length > 0) {
+    return NextResponse.json({ results: uniqueNelloreLocal.slice(0, 20) });
+  }
+
+  const uniqueAndhraLocal = dedupeLocal(andhraLocalMatches).filter((item) => {
+    // Keep Andhra fallback, but avoid noisy cross-district results when query is short.
+    if (query.length < 3 && !item.name.toLowerCase().startsWith(query.toLowerCase())) return false;
+    return true;
+  }).sort((a, b) => rankLocalResult(query, b) - rankLocalResult(query, a));
+
+  if (uniqueAndhraLocal.length > 0) {
+    return NextResponse.json({ results: uniqueAndhraLocal.slice(0, 20) });
+  }
+
   const localSeen = new Set<string>();
-  const uniqueLocalMatches = localMatches.filter((item) => {
-    const key = `${item.name.toLowerCase()}|${item.latitude.toFixed(4)}|${item.longitude.toFixed(4)}|${item.formatted_address.toLowerCase()}`;
+  const uniqueLocalMatches = [...nelloreLocalMatches, ...andhraLocalMatches].filter((item) => {
+    const key = `${item.name.toLowerCase()}|${item.latitude.toFixed(4)}|${item.longitude.toFixed(4)}|${(item.formatted_address || "").toLowerCase()}`;
     if (localSeen.has(key)) return false;
     localSeen.add(key);
     return true;
   });
 
   if (uniqueLocalMatches.length > 0) {
-    return NextResponse.json({ results: uniqueLocalMatches.slice(0, 14) });
+    return NextResponse.json({ results: uniqueLocalMatches.slice(0, 20) });
   }
 
   if (!query || query.length < 2) {

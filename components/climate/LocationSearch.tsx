@@ -142,6 +142,34 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
     }
   }, [query, results, loading]);
 
+  const resolveCurrentLocationName = async (lat: number, lon: number) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(String(lat))}&lon=${encodeURIComponent(String(lon))}&addressdetails=1`
+      );
+      if (!res.ok) throw new Error("reverse geocode failed");
+      const data = await res.json();
+      const address = data?.address || {};
+      const name =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.suburb ||
+        data?.name ||
+        "Current Location";
+
+      return {
+        name,
+        formatted_address: data?.display_name || `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+      };
+    } catch {
+      return {
+        name: "Current Location",
+        formatted_address: `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+      };
+    }
+  };
+
   const choose = (loc: Location) => {
     onSelect?.(loc);
     setQuery("");
@@ -242,10 +270,25 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
         <button
           onClick={() => {
             if (!navigator.geolocation) return;
-            navigator.geolocation.getCurrentPosition(({ coords }) => choose({ name: "My Location", lat: coords.latitude, lon: coords.longitude }));
+            navigator.geolocation.getCurrentPosition(
+              async ({ coords }) => {
+                const loc = await resolveCurrentLocationName(coords.latitude, coords.longitude);
+                choose({
+                  name: loc.name,
+                  lat: coords.latitude,
+                  lon: coords.longitude,
+                  formatted_address: loc.formatted_address
+                });
+              },
+              () => {
+                alert("Unable to get current location. Please enable location permission.");
+              },
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
           }}
+          title="Use current location"
           className={`rounded-xl border px-3 text-sm transition ${isWhiteTheme ? "border-slate-200 bg-slate-100 text-slate-600" : "border-slate-700 bg-slate-800/60 text-slate-300"}`}
-          aria-label="Use GPS"
+          aria-label="Use current location"
         >
           <Navigation size={15} />
         </button>
