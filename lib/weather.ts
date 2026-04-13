@@ -1,6 +1,40 @@
 import { searchLocalities as searchNelloreLocalities } from "./nelloreLocalities";
 import { searchAndhraLocalities } from "./andhraPradeshLocalities";
-const BASE = process.env.NEXT_PUBLIC_API_BASE || "";
+const RAW_BASE = (process.env.NEXT_PUBLIC_API_BASE || "").trim();
+
+function isLocalHost(hostname: string) {
+  const host = hostname.toLowerCase();
+  return host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0";
+}
+
+function resolveApiBase() {
+  if (!RAW_BASE) return "";
+
+  const normalizedInput = /^https?:\/\//i.test(RAW_BASE)
+    ? RAW_BASE
+    : /^(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d+)?(?:\/.*)?$/i.test(RAW_BASE)
+    ? `https://${RAW_BASE}`
+    : "";
+
+  if (!normalizedInput) return "";
+
+  try {
+    const url = new URL(normalizedInput);
+
+    if (typeof window !== "undefined") {
+      const appHost = window.location.hostname;
+      if (isLocalHost(url.hostname) && !isLocalHost(appHost)) {
+        return "";
+      }
+    }
+
+    return url.origin;
+  } catch {
+    return "";
+  }
+}
+
+const BASE = resolveApiBase();
 
 export type WeatherResponse = {
   current_weather?: { temperature: number; windspeed: number; weathercode: number };
