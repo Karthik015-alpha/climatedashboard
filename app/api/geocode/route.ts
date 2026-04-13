@@ -16,7 +16,6 @@ const NELLORE_VIEWBOX = "79.25,14.95,80.35,13.55";
 
 const NELLORE_CENTER = { latitude: 14.4426, longitude: 79.9865 };
 
-// Expanded fallback catalog to maximize Nellore coverage for local search.
 const NELLORE_FALLBACK_NAMES = [
   "Nellore", "Nellore Urban", "Nellore Rural", "Indukurpet", "T.P. Gudur", "Muthukur", "Venkatachalam", "Podalakur", "Rapur", "Kovur", "Buchireddypalem", "Manubolu", "Sydapuram",
   "Atmakur", "Kaluvoya", "Chejerla", "Ananthasagaram", "A.S. Peta", "Sangam", "S.R. Puram", "Udayagiri", "Marripadu", "Kavali", "Allur", "Kodavalur", "Vidavalur", "Vinjamur",
@@ -202,7 +201,6 @@ export async function GET(request: Request) {
   }
 
   const uniqueAndhraLocal = dedupeLocal(andhraLocalMatches).filter((item) => {
-    // Keep Andhra fallback, but avoid noisy cross-district results when query is short.
     if (query.length < 3 && !item.name.toLowerCase().startsWith(query.toLowerCase())) return false;
     return true;
   }).sort((a, b) => rankLocalResult(query, b) - rankLocalResult(query, a));

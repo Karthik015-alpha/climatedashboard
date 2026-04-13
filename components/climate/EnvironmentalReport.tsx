@@ -95,7 +95,7 @@ export default function EnvironmentalReport({ data = {}, location = {} as any })
         </div>
       </Section>
 
-      <Section title="Radar & Satellite Insights" icon={<BarChart2 size={16} />} accent="#6366f1">
+      <Section title="Satellite Insights" icon={<BarChart2 size={16} />} accent="#6366f1">
         <div style={{ background: "linear-gradient(135deg,#f8fafc,#f1f5f9)", border: "1px solid #e2e8f0", borderRadius: 14, height: 100, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
             <p style={{ fontSize: 24, margin: "0 0 4px 0" }}>📡</p>

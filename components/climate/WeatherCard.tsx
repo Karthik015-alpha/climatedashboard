@@ -50,23 +50,40 @@ export default function WeatherCard({ initialName = "New Delhi", lat = 28.61, lo
     }
   }, []);
 
-  useEffect(() => { load({ lat, lon }); }, [lat, lon, load]);
-
   useEffect(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    let cancelled = false;
+    const fallback = { name: initialName, lat, lon };
+
+    const loadFallback = () => {
+      if (cancelled || hasManualSelection.current) return;
+      setLocation(fallback);
+      load({ lat: fallback.lat, lon: fallback.lon });
+    };
+
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      loadFallback();
+      return () => {
+        cancelled = true;
+      };
+    }
+
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        if (hasManualSelection.current) return;
+        if (cancelled || hasManualSelection.current) return;
         const next = { name: "My Location", lat: coords.latitude, lon: coords.longitude };
         setLocation(next);
         load({ lat: next.lat, lon: next.lon });
       },
       () => {
-        // Keep initial location when location permission is denied.
+        loadFallback();
       },
-      { enableHighAccuracy: false, timeout: 7000, maximumAge: 600000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  }, [load]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialName, lat, lon, load]);
 
   useEffect(() => {
     const update = () => setIsNarrow(window.innerWidth < 640);

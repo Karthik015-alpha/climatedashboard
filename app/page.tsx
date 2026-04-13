@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Droplets, Thermometer, Wind, Zap } from "lucide-react";
+import { ArrowRight, Droplets, Moon, Sun, Thermometer, Wind, Zap } from "lucide-react";
 
+import { useClimate } from "@/context/ClimateContext";
 import { fetchWeather, fetchAQI } from "@/lib/weather";
 
 type LandingCity = {
@@ -40,7 +41,7 @@ const phrases = [
 ];
 
 function LandingPage() {
-  // --- State and logic moved inside component ---
+  const { isWhiteTheme, toggleWhiteTheme } = useClimate();
   const defaultMainCity = majorIndianCities[0];
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [subText, setSubText] = useState("");
@@ -49,7 +50,6 @@ function LandingPage() {
   const [aqi, setAqi] = useState<number | null>(null);
   const [mainLocation, setMainLocation] = useState(defaultMainCity);
 
-  // Typing animation
   useEffect(() => {
     const timeout = setTimeout(() => {
       const current = phrases[phraseIndex];
@@ -67,7 +67,6 @@ function LandingPage() {
     return () => clearTimeout(timeout);
   }, [subText, isDeleting, phraseIndex]);
 
-  // Use browser geolocation when available for the main live card.
   useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -79,14 +78,11 @@ function LandingPage() {
           longitude: coords.longitude
         });
       },
-      () => {
-        // Keep default city when location permission is denied/unavailable.
-      },
+      () => {},
       { enableHighAccuracy: false, timeout: 7000, maximumAge: 600000 }
     );
   }, []);
 
-  // Lightweight data pull for hero and side list.
   useEffect(() => {
     const load = async () => {
       try {
@@ -123,7 +119,7 @@ function LandingPage() {
 
         const a = await fetchAQI(mainLocation.latitude, mainLocation.longitude);
         setAqi(a?.current?.european_aqi ?? null);
-      } catch (_) { /* ignore for landing */ }
+      } catch (_) {}
     };
     load();
   }, [mainLocation]);
@@ -131,72 +127,73 @@ function LandingPage() {
   const mainCity = snippets[mainLocation.name];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black text-white">
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <video autoPlay muted loop playsInline className="h-full w-full object-cover opacity-80" style={{ filter: "brightness(1.1) contrast(1.1) saturate(1.1)" }}>
-          <source src="/cyclone.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black" />
-      </div>
+    <div className={`relative min-h-screen overflow-hidden ${isWhiteTheme ? "bg-slate-100 text-slate-900" : "bg-slate-950 text-white"}`}>
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-12">
         <header className="flex items-center justify-between">
           <Link href={{ pathname: "/" }} className="text-lg font-black tracking-[0.2em] uppercase">EcoVision</Link>
           <div className="flex items-center gap-3 text-sm">
+            <button
+              onClick={toggleWhiteTheme}
+              className={`rounded-full border px-3 py-2 transition ${isWhiteTheme ? "border-slate-300 bg-white text-slate-700 hover:bg-slate-50" : "border-white/15 bg-white/10 text-white hover:bg-white/20"}`}
+              aria-label="Toggle theme"
+            >
+              {isWhiteTheme ? <Moon size={16} /> : <Sun size={16} />}
+            </button>
             <Link href={{ pathname: "/dashboard" }} className="rounded-full bg-white px-4 py-2 font-semibold text-black shadow-lg shadow-emerald-500/20">Open Dashboard</Link>
           </div>
         </header>
         <main className="grid flex-1 grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="flex flex-col justify-center space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur">
+            <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur ${isWhiteTheme ? "border-slate-200 bg-white/80 text-slate-700" : "border-white/20 bg-white/10 text-white"}`}>
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               Real-Time Intelligence
             </div>
             <div>
-              <p className="mb-3 text-sm uppercase tracking-[0.3em] text-white/60">Welcome to</p>
+              <p className={`mb-3 text-sm uppercase tracking-[0.3em] ${isWhiteTheme ? "text-slate-500" : "text-white/60"}`}>Welcome to</p>
               <h1 className="text-5xl font-black leading-tight md:text-7xl">EcoVision</h1>
             </div>
             <div className="h-10 overflow-hidden">
               <AnimatePresence mode="wait">
-                <motion.p key={subText} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-semibold text-white/80">
+                <motion.p key={subText} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`text-xl font-semibold ${isWhiteTheme ? "text-slate-700" : "text-white/80"}`}>
                   {subText}
                   <span className="animate-pulse">|</span>
                 </motion.p>
               </AnimatePresence>
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label="CO₂ ppm" value="421" icon={<Zap size={16} />} />
-              <Stat label="Temp Anomaly" value="+1.25°C" icon={<Thermometer size={16} />} />
-              <Stat label="Sea Rise" value="3.4 mm" icon={<Droplets size={16} />} />
-              <Stat label="India AQI" value={aqi ? `${aqi}` : "--"} icon={<Wind size={16} />} />
+              <Stat isWhiteTheme={isWhiteTheme} label="CO₂ ppm" value="421" icon={<Zap size={16} />} />
+              <Stat isWhiteTheme={isWhiteTheme} label="Temp Anomaly" value="+1.25°C" icon={<Thermometer size={16} />} />
+              <Stat isWhiteTheme={isWhiteTheme} label="Sea Rise" value="3.4 mm" icon={<Droplets size={16} />} />
+              <Stat isWhiteTheme={isWhiteTheme} label="India AQI" value={aqi ? `${aqi}` : "--"} icon={<Wind size={16} />} />
             </div>
             <div className="flex flex-wrap gap-3">
-              {["Weather", "Climate", "AQI", "Radar", "Forecast", "Analytics", "Alerts"].map((p) => (
+              {["Weather", "Climate", "AQI", "Forecast", "Analytics", "Alerts"].map((p) => (
                 <Link key={p} href={{ pathname: `/dashboard/${p.toLowerCase()}` }} className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] hover:bg-white/20">
                   {p}
                 </Link>
               ))}
             </div>
           </div>
-          <div className="space-y-4 rounded-3xl border border-white/20 bg-black/45 p-6 backdrop-blur-xl">
-            <header className="flex items-center justify-between border-b border-white/10 pb-4 text-xs uppercase tracking-[0.25em]">
+          <div className={`space-y-4 rounded-3xl border p-6 backdrop-blur-xl ${isWhiteTheme ? "border-slate-200 bg-white/80 text-slate-900" : "border-white/20 bg-black/45 text-white"}`}>
+            <header className={`flex items-center justify-between border-b pb-4 text-xs uppercase tracking-[0.25em] ${isWhiteTheme ? "border-slate-200" : "border-white/10"}`}>
               <span>Live India Weather</span>
               <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-emerald-300">Live</span>
             </header>
-            <div className="rounded-2xl border border-white/20 bg-black/40 p-6 text-center">
+            <div className={`rounded-2xl border p-6 text-center ${isWhiteTheme ? "border-slate-200 bg-slate-50" : "border-white/20 bg-black/40"}`}>
               <p className="text-5xl">☀️</p>
               <h3 className="text-2xl font-bold">{mainLocation.name}</h3>
-              <p className="text-sm text-white/80">{mainCity ? "Current" : "Fetching..."}</p>
+              <p className={`text-sm ${isWhiteTheme ? "text-slate-600" : "text-white/80"}`}>{mainCity ? "Current" : "Fetching..."}</p>
               <div className="py-6 text-6xl font-black font-mono">{mainCity?.temp !== undefined ? Math.round(mainCity.temp) : "--"}°</div>
               <div className="grid grid-cols-3 gap-3 text-sm">
-                <Mini label="Humidity" value={mainCity?.humidity !== undefined ? `${Math.round(mainCity.humidity)}%` : "--"} />
-                <Mini label="Wind" value={mainCity?.wind !== undefined ? `${Math.round(mainCity.wind)} km/h` : "--"} />
-                <Mini label="Feels" value={mainCity?.temp !== undefined ? `${Math.round(mainCity.temp - 2)}°` : "--"} />
+                <Mini isWhiteTheme={isWhiteTheme} label="Humidity" value={mainCity?.humidity !== undefined ? `${Math.round(mainCity.humidity)}%` : "--"} />
+                <Mini isWhiteTheme={isWhiteTheme} label="Wind" value={mainCity?.wind !== undefined ? `${Math.round(mainCity.wind)} km/h` : "--"} />
+                <Mini isWhiteTheme={isWhiteTheme} label="Feels" value={mainCity?.temp !== undefined ? `${Math.round(mainCity.temp - 2)}°` : "--"} />
               </div>
             </div>
-            <div className="space-y-2 text-xs uppercase tracking-[0.15em] text-white/75">Other Cities</div>
+            <div className={`space-y-2 text-xs uppercase tracking-[0.15em] ${isWhiteTheme ? "text-slate-500" : "text-white/75"}`}>Other Cities</div>
             <div className="space-y-2">
               {majorIndianCities.slice(1).map((c) => (
-                <div key={c.name} className="flex items-center justify-between rounded-xl border border-white/20 bg-black/40 px-4 py-3 text-sm">
+                <div key={c.name} className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${isWhiteTheme ? "border-slate-200 bg-white" : "border-white/20 bg-black/40"}`}>
                   <span className="font-semibold">{c.name}</span>
                   <span className="font-mono text-lg font-black">{snippets[c.name]?.temp !== undefined ? Math.round(snippets[c.name].temp as number) : "--"}°</span>
                 </div>
@@ -204,7 +201,7 @@ function LandingPage() {
             </div>
           </div>
         </main>
-        <footer className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/70">
+        <footer className={`mt-auto flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-sm ${isWhiteTheme ? "border-slate-200 text-slate-600" : "border-white/10 text-white/70"}`}>
           <p>Ready to explore real-time climate intelligence?</p>
           <Link href={{ pathname: "/dashboard" }} className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-6 py-3 text-base font-bold text-black shadow-lg shadow-emerald-500/30">
             Open Dashboard <ArrowRight size={18} />
@@ -217,21 +214,21 @@ function LandingPage() {
 
 export default LandingPage;
 
-function Stat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+function Stat({ label, value, icon, isWhiteTheme }: { label: string; value: string; icon: React.ReactNode; isWhiteTheme: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-center backdrop-blur">
-      <div className="mb-1 text-emerald-300">{icon}</div>
+    <div className={`rounded-2xl border p-4 text-center backdrop-blur ${isWhiteTheme ? "border-slate-200 bg-white" : "border-white/10 bg-white/10"}`}>
+      <div className={`mb-1 ${isWhiteTheme ? "text-emerald-600" : "text-emerald-300"}`}>{icon}</div>
       <div className="text-2xl font-black">{value}</div>
-      <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/60">{label}</div>
+      <div className={`text-[10px] font-bold uppercase tracking-[0.25em] ${isWhiteTheme ? "text-slate-500" : "text-white/60"}`}>{label}</div>
     </div>
   );
 }
 
-function Mini({ label, value }: { label: string; value: string }) {
+function Mini({ label, value, isWhiteTheme }: { label: string; value: string; isWhiteTheme: boolean }) {
   return (
-    <div className="rounded-xl border border-white/15 bg-black/35 p-3 text-center">
+    <div className={`rounded-xl border p-3 text-center ${isWhiteTheme ? "border-slate-200 bg-white" : "border-white/15 bg-black/35"}`}>
       <div className="text-lg font-black font-mono">{value}</div>
-      <div className="text-[10px] uppercase tracking-[0.2em] text-white/80">{label}</div>
+      <div className={`text-[10px] uppercase tracking-[0.2em] ${isWhiteTheme ? "text-slate-500" : "text-white/80"}`}>{label}</div>
     </div>
   );
 }

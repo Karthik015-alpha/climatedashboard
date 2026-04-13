@@ -17,9 +17,10 @@ type Props = {
   onSelect?: (loc: Location) => void;
   showMap?: boolean;
   compact?: boolean;
+  autoLocateOnMount?: boolean;
 };
 
-export default function LocationSearch({ selected, onSelect, showMap = true, compact = false }: Props) {
+export default function LocationSearch({ selected, onSelect, showMap = true, compact = false, autoLocateOnMount = true }: Props) {
   const { isWhiteTheme } = useClimate();
   const [leaflet, setLeaflet] = useState<any>(null);
   const [query, setQuery] = useState("");
@@ -29,11 +30,11 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
   const [activeIndex, setActiveIndex] = useState(-1);
   const ref = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const didAutoLocate = useRef(false);
   const [dropdownPos, setDropdownPos] = useState<{ left: number; top: number; width: number } | null>(null);
 
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
-      // Check if click is inside input or dropdown (portal)
       const input = inputRef.current;
       const dropdown = document.getElementById("location-search-dropdown");
       if (
@@ -48,7 +49,6 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  // Calculate dropdown position
   useEffect(() => {
     if (open && inputRef.current) {
       const rect = inputRef.current.getBoundingClientRect();
@@ -178,6 +178,32 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (!autoLocateOnMount || didAutoLocate.current || !onSelect) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    const isDefaultSelection =
+      !selected ||
+      (Math.abs(selected.lat - 28.61) < 0.02 && Math.abs(selected.lon - 77.21) < 0.02);
+
+    if (!isDefaultSelection) return;
+
+    didAutoLocate.current = true;
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const loc = await resolveCurrentLocationName(coords.latitude, coords.longitude);
+        choose({
+          name: loc.name,
+          lat: coords.latitude,
+          lon: coords.longitude,
+          formatted_address: loc.formatted_address
+        });
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, [autoLocateOnMount, onSelect, selected]);
+
 
   return (
     <div ref={ref} className={`relative ${compact ? "" : "space-y-3"}`}>
@@ -283,7 +309,7 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
               () => {
                 alert("Unable to get current location. Please enable location permission.");
               },
-              { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+              { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
           }}
           title="Use current location"
@@ -294,11 +320,9 @@ export default function LocationSearch({ selected, onSelect, showMap = true, com
         </button>
       </div>
 
-      {/* Map and details below search and dropdown */}
-
       {showMap && selected && leaflet && FlyTo && selectedCenter && (
         <div className={`overflow-hidden rounded-2xl border ${isWhiteTheme ? "border-slate-200" : "border-slate-700"}`}>
-          <leaflet.MapContainer center={selectedCenter} zoom={10} style={{ height: 220, width: "100%" }} zoomControl>
+          <leaflet.MapContainer key={`${selectedCenter[0]}:${selectedCenter[1]}:${isWhiteTheme ? "light" : "dark"}`} center={selectedCenter} zoom={10} style={{ height: 220, width: "100%" }} zoomControl>
             <leaflet.TileLayer
               attribution="© OpenStreetMap"
               url={isWhiteTheme ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"}

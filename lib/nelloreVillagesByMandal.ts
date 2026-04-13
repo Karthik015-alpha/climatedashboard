@@ -1,11 +1,7 @@
-// Mandal-wise villages for Nellore district, Andhra Pradesh, India
-// Fill in the arrays for each mandal with the official village names
-
 export const nelloreVillagesByMandal: {
   [mandal: string]: string[];
 } = {
   "Nellore Urban": [
-    // "Village1", "Village2", ...
   ],
   "Nellore Rural": [],
   "Indukurpet": [],

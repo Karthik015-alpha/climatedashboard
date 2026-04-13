@@ -1,4 +1,3 @@
-// List of major world cities (sample, can be expanded)
 export type GlobalCity = {
   name: string;
   country: string;
@@ -28,7 +27,6 @@ export const globalCities: GlobalCity[] = [
   { name: "Johannesburg", country: "South Africa", latitude: -26.2041, longitude: 28.0473, population: 957441 },
   { name: "Mexico City", country: "Mexico", latitude: 19.4326, longitude: -99.1332, population: 8918653 },
   { name: "Seoul", country: "South Korea", latitude: 37.5665, longitude: 126.9780, population: 9776000 },
-  // Famous landmarks and places
   { name: "Eiffel Tower", country: "France", latitude: 48.8584, longitude: 2.2945 },
   { name: "Statue of Liberty", country: "USA", latitude: 40.6892, longitude: -74.0445 },
   { name: "Great Wall of China", country: "China", latitude: 40.4319, longitude: 116.5704 },
@@ -49,28 +47,22 @@ export const globalCities: GlobalCity[] = [
   { name: "Table Mountain", country: "South Africa", latitude: -33.9628, longitude: 18.4098 },
   { name: "Banff National Park", country: "Canada", latitude: 51.4968, longitude: -115.9281 },
   { name: "Golden Gate Bridge", country: "USA", latitude: 37.8199, longitude: -122.4783 },
-  // --- Nellore, India and its subdivisions ---
   { name: "Nellore", country: "India", latitude: 14.4426, longitude: 79.9865, population: 600869 },
-  // Mandals (approximate coordinates for Nellore district)
   ...[
     "Nellore Urban","Nellore Rural","Indukurpet","T.P. Gudur","Muthukur","Venkatachalam","Podalakur","Rapur","Kovur","Buchireddypalem","Manubolu","Sydapuram",
     "Atmakur","Kaluvoya","Chejerla","Ananthasagaram","A.S. Peta","Sangam","S.R. Puram","Udayagiri","Marripadu",
     "Kavali","Allur","Kodavalur","Vidavalur","Vinjamur","Dagadarthi","Bogole","Jaladanki","Duttalur","Kaligiri",
     "Gudur","Sullurpeta","Naidupeta","Venkatagiri","Tada","Chittamur","Vakadu","Kondapuram","Dakkili","Doravarisatram","Ojili","Pellakur","Balayapalle","Varikuntapadu"
   ].map(mandal => ({ name: `${mandal}, Nellore`, country: "India", latitude: 14.4426, longitude: 79.9865 })),
-  // Main streets/roads in Nellore City
   ...[
     "Trunk Road","Mini Bypass Road","R.R. Street","Achari Street","Kapu Street","Stonehousepet Main Road","Mulapeta Main Road","Podalakur Road","Atmakur Road","Muthukur Road","Vedayapalem Road","GNT Road","NH-16 stretch"
   ].map(street => ({ name: `${street}, Nellore`, country: "India", latitude: 14.4426, longitude: 79.9865 })),
-  // Popular local streets/area belts
   ...[
     "Stonehousepet","Magunta Layout","Balaji Nagar","Vedayapalem","Dargamitta","Pogathota","Nawabpet","A.C. Nagar","Ramji Nagar","Harinathpuram","VRC Centre","Gandhi Bomma Centre","Children’s Park Area","Mulapeta","Fathekhanpet","Chinna Bazaar","Kothuru","Bramhananda Reddy Nagar","Ambedkar Nagar","Navalak Gardens","Saraswathi Nagar","Isukathota","Kondayapalem","Somasekharapuram","Chintareddypalem","Allipuram","Devarapalem","Gudipallipadu","Amancherla"
   ].map(locality => ({ name: `${locality}, Nellore`, country: "India", latitude: 14.4426, longitude: 79.9865 })),
-  // Practical village list (sample, all with Nellore district coordinates)
   ...[
     "Akkacheruvupadu","Allampadu","Allipuram","Amancherla","Ambapuram","Ananthasagaram","Anumasamudrampeta","Apparao Palem","Balayapalle","Basinenipalli","Batrakagollu","Beeramgunta","Bheemavarappadu","Bitragunta","Bogole","Botikarlapadu","Buchireddypalem","Chaganam Rajupalem","Chejerla","Chendodu","Chennavarappadu","Chennur","Chillakur","Chintalapalem","Chintareddipalem","Chittamur","Chittodu","D. Velampalli","Dagadarthi","Dakkili","Devarapalem","Donthali","Doravarisatram","East Gogulapalli","Golla Kandukur","Graddagunta","Gudali","Gudipallipadu","Gundlapalem","Illukurupadu","Jaladanki","Kaligiri","Kaluvoya","Karlapudi","Kesavaram","Kodavalur","Kondapuram","Kota","Kothapalem","Kothapatnam","Kovur","Krishnapatnam","Lakshmakka Khandriga","Manubolu","Marripadu","Muthukur","Mypadu","Narrawada","Nelapattu","Nellatur","North Rajupalem","Ojili","Pangili","Pellakur","Pennepalli","Periyavaram","Podalakur","Puttamraju Kandriga","Rama Reddy Palem","Ramanapalem","Ramapuram","Rebala","Rapur","Saipeta","Sangam","Sarvepalli","Seetharamapuram","Siddana Konduru","Siddareddy Palem","Sydapuram","Sullurpeta","Tada","Thinnelapudi","Thippavarappadu","Thirumalamma Palem","Thoorpu Dubagunta","Thotapalligudur","Thummalapenta","Ulavapalli","Utukur","Vakadu","Varikuntapadu","Veguru","Venadu","Vendodu","Vidavalur","Vinjamur","Viruvur","Yellayapalem","Yerradoddipalli"
   ].map(village => ({ name: `${village}, Nellore`, country: "India", latitude: 14.4426, longitude: 79.9865 })),
-  // --- End Nellore ---
 ];
 
 export function searchGlobalCities(query: string): GlobalCity[] {

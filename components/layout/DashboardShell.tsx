@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { href: "/dashboard/weather", label: "Weather" },
   { href: "/dashboard/climate", label: "Climate" },
   { href: "/dashboard/aqi", label: "AQI" },
-  { href: "/dashboard/radar", label: "Radar" },
   { href: "/dashboard/forecast", label: "Forecast" },
   { href: "/dashboard/analytics", label: "Analytics" },
   { href: "/dashboard/alerts", label: "Alerts" }

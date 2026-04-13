@@ -13,7 +13,6 @@ const modules = [
   { title: "Weather", desc: "Live conditions, maps, and forecasts.", href: "/dashboard/weather" },
   { title: "Climate", desc: "Long-term trends and indicators.", href: "/dashboard/climate" },
   { title: "AQI", desc: "Air quality monitoring across regions.", href: "/dashboard/aqi" },
-  { title: "Radar", desc: "Interactive radar and satellite layers.", href: "/dashboard/radar" },
   { title: "Forecast", desc: "7-day projections and hourly views.", href: "/dashboard/forecast" },
   { title: "Analytics", desc: "Data stories and KPIs.", href: "/dashboard/analytics" },
   { title: "Alerts", desc: "Extreme weather notifications.", href: "/dashboard/alerts" }
@@ -129,6 +128,7 @@ export default function DashboardOverviewPage() {
             <LocationSearch
               compact
               showMap={false}
+              autoLocateOnMount={false}
               selected={{
                 name: selectedLocation.name,
                 lat: selectedLocation.lat,

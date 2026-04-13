@@ -1,4 +1,3 @@
-// EcoVision Weather Page migrated from weather.html
 import Link from "next/link";
 
 export default function EcoVisionWeather() {
@@ -9,7 +8,6 @@ export default function EcoVisionWeather() {
           <h1 className="text-3xl font-extrabold mb-1">🌤️ Weather Dashboard</h1>
           <p className="text-lg text-slate-200">Comprehensive weather monitoring and forecasting hub.</p>
         </div>
-        {/* Quick stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white/5 rounded-xl p-5 flex flex-col items-center">
             <div className="text-2xl">🌡️</div>
@@ -32,7 +30,6 @@ export default function EcoVisionWeather() {
             <div className="text-xs font-bold text-slate-300 mt-1">UV Index</div>
           </div>
         </div>
-        {/* Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <Link href="#" className="rounded-xl border-l-4 border-orange-400 bg-white/5 p-5 flex flex-col hover:bg-orange-500/10 transition">
             <span className="text-2xl mb-2">🌡️</span>
@@ -55,7 +52,7 @@ export default function EcoVisionWeather() {
           <Link href="#" className="rounded-xl border-l-4 border-green-400 bg-white/5 p-5 flex flex-col hover:bg-green-500/10 transition">
             <span className="text-2xl mb-2">🗺️</span>
             <div className="font-bold text-green-400">Weather Map</div>
-            <div className="text-xs text-slate-300 mb-2">Interactive radar & precipitation overlay.</div>
+            <div className="text-xs text-slate-300 mb-2">Interactive precipitation overlay.</div>
             <div className="text-xs font-bold text-green-300">Open →</div>
           </Link>
           <Link href="#" className="rounded-xl border-l-4 border-red-400 bg-white/5 p-5 flex flex-col hover:bg-red-500/10 transition">
@@ -83,7 +80,6 @@ export default function EcoVisionWeather() {
             <div className="text-xs font-bold text-purple-300">Open →</div>
           </Link>
         </div>
-        {/* Quick 7-day preview chart */}
         <div className="bg-white/5 rounded-xl p-5 mt-8">
           <h3 className="font-bold mb-2">📈 7-Day Temperature Range — New Delhi (°C)</h3>
           <div className="h-56 flex items-center justify-center text-slate-400">[7-Day Temperature Chart]</div>

@@ -1,4 +1,3 @@
-// EcoVision Climate Page migrated from climate.html
 import Link from "next/link";
 
 export default function EcoVisionClimate() {
@@ -9,7 +8,6 @@ export default function EcoVisionClimate() {
           <h1 className="text-3xl font-extrabold mb-1">📈 Climate Monitoring</h1>
           <p className="text-lg text-slate-200">Long-term climate trend analysis with interactive charts.</p>
         </div>
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white/5 rounded-xl p-5 flex flex-col items-center">
             <div className="text-2xl">🌡️</div>
@@ -32,7 +30,6 @@ export default function EcoVisionClimate() {
             <div className="text-xs font-bold text-slate-300 mt-1">Arctic Ice Loss</div>
           </div>
         </div>
-        {/* Sub-page feature cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <Link href="#" className="rounded-xl border-l-4 border-orange-400 bg-white/5 p-5 flex flex-col hover:bg-orange-500/10 transition">
             <span className="text-2xl mb-2">🌡️</span>
@@ -65,7 +62,6 @@ export default function EcoVisionClimate() {
             <div className="text-xs font-bold text-red-300">View Charts →</div>
           </Link>
         </div>
-        {/* Overview charts placeholders */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white/5 rounded-xl p-5">
             <h3 className="font-bold mb-2">🌡️ Global Temp Anomaly (°C)</h3>

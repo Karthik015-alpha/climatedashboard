@@ -1,5 +1,3 @@
-// EcoVision Alerts Page migrated from alerts.html
-
 export default function EcoVisionAlerts() {
   return (
     <main className="min-h-screen bg-black text-white font-sans p-6">
@@ -13,7 +11,6 @@ export default function EcoVisionAlerts() {
             <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>Live
           </div>
         </div>
-        {/* Summary stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           <div className="bg-white/5 rounded-xl p-5 flex flex-col items-center">
             <div className="text-2xl">🔴</div>
@@ -36,7 +33,6 @@ export default function EcoVisionAlerts() {
             <div className="text-xs font-bold text-slate-300 mt-1">Areas Safe</div>
           </div>
         </div>
-        {/* Filter bar (static for now) */}
         <div className="flex flex-wrap gap-2 mb-6">
           <button className="filter-btn active bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase">All (12)</button>
           <button className="filter-btn bg-red-700/20 text-red-400 px-4 py-2 rounded-lg font-bold text-xs uppercase">🔴 Extreme</button>
@@ -44,9 +40,7 @@ export default function EcoVisionAlerts() {
           <button className="filter-btn bg-yellow-700/20 text-yellow-400 px-4 py-2 rounded-lg font-bold text-xs uppercase">🟡 Moderate</button>
           <button className="filter-btn bg-blue-700/20 text-blue-400 px-4 py-2 rounded-lg font-bold text-xs uppercase">🔵 Watch</button>
         </div>
-        {/* Alerts list placeholder */}
         <div className="mb-8 text-slate-400">(Alerts list would be rendered here.)</div>
-        {/* Emergency contacts */}
         <h2 className="text-lg font-extrabold text-slate-100 mb-3">📞 Emergency Contacts</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white/5 rounded-xl p-5 flex flex-col items-center">

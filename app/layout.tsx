@@ -4,7 +4,7 @@ import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "EcoVision | Climate Intelligence",
-  description: "Real-time weather, climate, AQI, radar, and analytics dashboard.",
+  description: "Real-time weather, climate, AQI, and analytics dashboard.",
   icons: [{ rel: "icon", url: "/favicon.ico" }]
 };
 

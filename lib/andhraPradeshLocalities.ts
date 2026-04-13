@@ -309,17 +309,11 @@ const DISTRICTS: DistrictSpec[] = [
       "Anakapalle Rural", "Pendurthi Rural", "Bheemunipatnam Rural", "Gajuwaka Rural", "Madhurawada"
     ],
     streets: [
-      // West
       "Gopalapatnam", "Naidu Thota", "Vepagunta", "Marripalem", "Simhachalam", "Prahaladapuram", "Pendurthi", "Chintalagraharam", "NAD", "Madhavadhara", "Sujatha Nagar", "Adavivaram", "Muralinagar", "Chinnamushidiwada", "Kakani Nagar", "Narava", "Pineapple Colony",
-      // East
       "Maharanipeta", "Jagadamba Centre", "MVP Colony", "Pandurangapuram", "Velampeta", "Chinna Waltair", "Kirlampudi Layout", "Daspalla Hills", "Town Kotha Road", "Peda Waltair", "Lawsons Bay Colony", "Prakashraopeta", "Burujupeta", "Jalari Peta", "One Town", "Poorna Market", "Allipuram", "Salipeta", "Relli Veedhi", "Chengal Rao Peta",
-      // North West
       "Chinna Gadhili", "Visalakshi Nagar", "Arilova", "Ravindra Nagar", "Hanumanthavaka", "Adarsh Nagar",
-      // Northern Suburbs
       "Padmanabham", "Gidijala", "Gudilova", "Tagarapuvalasa", "Bheemunipatnam", "Nidigattu", "Vellanki", "Sontyam",
-      // Southern Suburbs
       "Anakapalli", "Pedamadaka", "Ravada", "Devada", "Lankelapalem", "Parawada", "Appikonda", "Atchutapuram",
-      // Western Suburbs
       "Sabbavaram", "Devipuram", "Kothavalasa"
     ]
   },

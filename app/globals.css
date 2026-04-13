@@ -33,7 +33,6 @@ body.theme-light .glass-panel {
   @apply bg-white/70 border-slate-200/50 shadow-lg;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #0f172a; }
 body.theme-light ::-webkit-scrollbar-track { background: #f1f5f9; }

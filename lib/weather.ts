@@ -4,8 +4,21 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export type WeatherResponse = {
   current_weather?: { temperature: number; windspeed: number; weathercode: number };
-  hourly?: { relative_humidity_2m?: number[] };
-  daily?: { temperature_2m_max: number[]; temperature_2m_min: number[]; weathercode: number[]; time: string[] };
+  hourly?: {
+    time?: string[];
+    relative_humidity_2m?: number[];
+    temperature_2m?: number[];
+    wind_speed_10m?: number[];
+  };
+  daily?: {
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+    weathercode: number[];
+    time: string[];
+    sunrise?: string[];
+    sunset?: string[];
+    uv_index_max?: number[];
+  };
 };
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherResponse> {

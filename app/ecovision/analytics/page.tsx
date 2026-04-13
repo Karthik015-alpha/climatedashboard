@@ -1,4 +1,3 @@
-// EcoVision Analytics Page migrated from analytics.html
 import Link from "next/link";
 
 export default function EcoVisionAnalytics() {
@@ -9,7 +8,6 @@ export default function EcoVisionAnalytics() {
           <h1 className="text-3xl font-extrabold mb-1">📊 Climate Analytics</h1>
           <p className="text-lg text-slate-200">Data-driven climate insights with interactive dashboards.</p>
         </div>
-        {/* Sub-page nav */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Link href="#" className="rounded-xl border-l-4 border-orange-400 bg-white/5 p-5 flex flex-col hover:bg-orange-500/10 transition">
             <span className="text-2xl mb-2">🌡️</span>
@@ -36,7 +34,6 @@ export default function EcoVisionAnalytics() {
             <div className="text-xs font-bold text-red-300">View →</div>
           </Link>
         </div>
-        {/* Overview charts placeholders */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white/5 rounded-xl p-5">
             <h3 className="font-bold mb-2">🌡️ Monthly Temp — Delhi vs Mumbai vs Nellore (°C)</h3>
